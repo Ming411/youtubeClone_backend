@@ -1,5 +1,5 @@
 const Service = require('egg').Service;
-
+const jwt = require('jsonwebtoken');
 class UserService extends Service {
   get User() {
     return this.app.model.User;
@@ -14,15 +14,20 @@ class UserService extends Service {
   findByEmail(email) {
     return this.User.findOne({
       email,
-    });
+    }).select('+password');
   }
   async createUser(data) {
     // 创建用户
-
     data.password = this.ctx.helper.md5(data.password);
     const user = new this.User(data);
     await user.save();// 存入数据库
     return user;
+  }
+  // 生成token的方法
+  createToken(data) {
+    return jwt.sign(data, this.app.config.jwt.secret, {
+      expiresIn: this.app.config.jwt.expiresIn,
+    });
   }
 }
 

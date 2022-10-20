@@ -13,6 +13,7 @@ module.exports = app => {
     },
     password: { // 密码
       type: String,
+      // 为了防止密码泄露
       select: false, // 查询中不包含该字段
       required: true,
     },
