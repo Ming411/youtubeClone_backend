@@ -29,6 +29,38 @@ class UserService extends Service {
       expiresIn: this.app.config.jwt.expiresIn,
     });
   }
+  // 验证Token
+  verifyToken(token) {
+    return jwt.verify(token, this.app.config.jwt.secret);
+  }
+  // 更新用户信息
+  updateUser(data) {
+    return this.User.findByIdAndUpdate(this.ctx.user._id, data, {
+      new: true, // 返回更新之后的数据，默认是返回更新之前的
+    });
+  }
+  // 添加订阅
+  async subscribe(userId, channelId) {
+    const { Subscription, User } = this.app.model;
+    // 检测是否已经订阅
+    const record = await Subscription.findOne({
+      user: userId,
+      channel: channelId,
+    });
+    const user = await User.findById(channelId);
+    // 订阅
+    if (!record) {
+      await new Subscription({
+        user: userId,
+        channel: channelId,
+      }).save();
+      // 更新用户订阅数量
+      user.subscribersCount++;
+      await user.save();
+    }
+    // 返回用户信息
+    return user;
+  }
 }
 
 module.exports = UserService;
