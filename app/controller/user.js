@@ -140,9 +140,83 @@ class UserController extends Controller {
     const user = await this.service.user.subscribe(userId, channelId);
     // 发送响应
     this.ctx.body = {
-      ...user.toJSON(),
+      // ...user.toJSON(),
+      ...this.ctx.helper._.pick(user, [
+        'username',
+        'email',
+        'avatar',
+        'cover',
+        'channelDescription',
+        'subscribersCount' ]),
       isSubscribed: true,
     };
+  }
+  /* 取消订阅 */
+  async unsubscribe() {
+    const userId = this.ctx.user._id;
+    const channelId = this.ctx.params.userId;
+    // 不能订阅自己
+    if (userId.equals(channelId)) {
+      this.ctx.throw(422, '用户不能订阅自己');
+    }
+    // 取消订阅
+    const user = await this.service.user.unsubscribe(userId, channelId);
+    // 发送响应
+    this.ctx.body = {
+      ...this.ctx.helper._.pick(user, [
+        'username',
+        'email',
+        'avatar',
+        'cover',
+        'channelDescription',
+        'subscribersCount' ]),
+      isSubscribed: true,
+    };
+  }
+  /* 查询用户资料 */
+  async getUser() {
+    // 获取订阅状态
+    let isSubscribed = false;
+    if (this.ctx.user) {
+      // 获取订阅记录
+      const record = await this.app.model.Subscription.findOne({
+        user: this.ctx.user._id,
+        channel: this.ctx.params.userId,
+      });
+      if (record) {
+        // 只有用户已登录，且已订阅才为true
+        isSubscribed = true;
+      }
+    }
+    // 获取用户信息
+    const user = await this.app.model.User.findById(this.ctx.params.userId);
+    // 发送响应
+    this.ctx.body = {
+      ...this.ctx.helper._.pick(user, [
+        'username',
+        'email',
+        'avatar',
+        'cover',
+        'channelDescription',
+        'subscribersCount' ]),
+      isSubscribed,
+    };
+  }
+  // 获取用户的关注列表
+  async getSubscriptions() {
+    const Subscription = this.app.model.Subscription;
+    let subscriptions = await Subscription.find({
+      user: this.ctx.params.userId,
+    }).populate('channel');
+    // populate 映射
+    subscriptions = subscriptions.map(item => {
+      return {
+        _id: item.channel._id,
+        username: item.channel.username,
+        avatar: item.channel.avatar,
+      };
+    });
+    this.ctx.body = { subscriptions };
   }
 }
 

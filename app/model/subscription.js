@@ -11,7 +11,7 @@ module.exports = app => {
     },
     channel: { // 订阅频道
       type: mongoose.ObjectId,
-      ref: 'User',
+      ref: 'User', // 链接到User模型，可以通过.populate() 快速查询
       required: true,
     },
     createdAt: { // 创建时间

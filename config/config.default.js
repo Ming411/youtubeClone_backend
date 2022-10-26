@@ -43,7 +43,11 @@ module.exports = appInfo => {
   config.jwt = {
     // 推荐使用UUID
     secret: 'edae016b-2482-46d1-85fd-4793e29d4c30',
-    expiresIn: '1d',
+    expiresIn: '30d',
+  };
+
+  config.cors = {
+    origin: '*',
   };
 
   return {

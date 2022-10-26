@@ -61,6 +61,23 @@ class UserService extends Service {
     // 返回用户信息
     return user;
   }
+  /* 取消订阅 */
+  async unsubscribe(userId, channelId) {
+    const { Subscription, User } = this.app.model;
+    // 检测是否已经订阅
+    const record = await Subscription.findOne({
+      user: userId,
+      channel: channelId,
+    });
+    const user = await User.findById(channelId);
+    if (record) {
+      // 已订阅就取消
+      await record.remove();
+      user.subscribersCount--;
+      await user.save();
+    }
+    return user;
+  }
 }
 
 module.exports = UserService;

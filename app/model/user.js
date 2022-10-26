@@ -29,6 +29,7 @@ module.exports = app => {
       type: String,
       default: null,
     },
+    // 粉丝数量
     subscribersCount: {
       type: Number,
       default: 0,
