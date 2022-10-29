@@ -1,14 +1,14 @@
 'use strict';
 
-const { Controller } = require('egg');
+const {Controller} = require('egg');
 
 class HomeController extends Controller {
   async index() {
-    const { ctx } = this;
+    const {ctx} = this;
     const User = this.app.model.User;
     await new User({
       userName: 'coder',
-      password: '123',
+      password: '123'
     }).save();
     ctx.body = 'hi, egg';
   }
